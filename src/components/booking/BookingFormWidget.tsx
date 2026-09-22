@@ -14,6 +14,8 @@ import { Calendar, Upload, X, CheckCircle, Phone, AlertCircle } from "lucide-rea
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { geocode, getRoute, type RouteResult } from "@/lib/mapbox";
+import RouteReview from "./RouteReview";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mdekgbna";
 
@@ -31,6 +33,8 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [step, setStep] = useState<"form" | "review">("form");
+  const [route, setRoute] = useState<RouteResult | null>(null);
 
   const [formData, setFormData] = useState({
     pickupLocation: "",
@@ -106,9 +110,10 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Step 1: validate → geocode both addresses → calculate route → show review.
+  const handleReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (bookingType === "workcomp" && !uploadedFile) {
       toast({
         title: "Demographic sheet required",
@@ -118,6 +123,45 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
       return;
     }
 
+    setIsSubmitting(true);
+    try {
+      const [from, to] = await Promise.all([
+        geocode(formData.pickupLocation),
+        geocode(formData.dropoffLocation),
+      ]);
+      if (!from || !to) {
+        toast({
+          title: "Address not found",
+          description: "Please check the pickup and drop-off addresses and try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      const r = await getRoute(from, to);
+      if (!r) {
+        toast({
+          title: "Couldn't calculate a route",
+          description: "We couldn't find a driving route between those addresses.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setRoute(r);
+      setStep("review");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      toast({
+        title: "Something went wrong",
+        description: "Please try again, or call us at (469) 934-2087.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Step 2: submit the confirmed booking to Formspree.
+  const confirmBooking = async () => {
     setIsSubmitting(true);
     try {
       const fd = new FormData();
@@ -133,6 +177,10 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
       Object.entries(formData).forEach(([k, v]) => {
         if (v) fd.append(labels[k] ?? k, v as string);
       });
+      if (route) {
+        fd.append("Route Distance", `${route.miles.toFixed(1)} miles`);
+        fd.append("Est. Drive Time", `${Math.round(route.minutes)} min`);
+      }
       if (uploadedFile) fd.append("Demographic Sheet", uploadedFile);
       fd.append("_subject", "New Ride Request — AMD Express Transportation");
       fd.append("email", formData.email || formData.patientPhone);
@@ -145,6 +193,7 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
 
       if (!res.ok) throw new Error("send_failed");
       setIsSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       toast({
         title: "Request Submitted!",
         description: "We'll contact you shortly to confirm your ride.",
@@ -214,6 +263,35 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
     );
   }
 
+  if (step === "review" && route) {
+    const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
+    const assistance =
+      [cap(formData.mobility), formData.equipment && formData.equipment !== "none" ? cap(formData.equipment) : ""]
+        .filter(Boolean)
+        .join(" · ") || "None";
+    return (
+      <div className={className}>
+        <RouteReview
+          route={route}
+          details={{
+            passenger: formData.patientName,
+            phone: formData.patientPhone,
+            pickupAddress: route.from.label,
+            dropoffAddress: route.to.label,
+            date: formData.pickupDate,
+            pickupTime: formData.pickupTime,
+            appointmentTime: formData.appointmentTime,
+            tripType: formData.roundTrip === "yes" ? "Round Trip" : "One Way",
+            assistance,
+          }}
+          onEdit={() => setStep("form")}
+          onConfirm={confirmBooking}
+          isSubmitting={isSubmitting}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={cn("bg-card rounded-2xl p-5 md:p-6 border border-border shadow-lg", className)}>
       <div className="text-center mb-5">
@@ -252,7 +330,7 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
       
       <p className="text-xs text-muted-foreground text-center mb-5">Tap a button to switch forms.</p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleReview} className="space-y-4">
         {/* Work Comp Notice */}
         <AnimatePresence>
           {bookingType === "workcomp" && (
@@ -591,12 +669,12 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
           {isSubmitting ? (
             <>
               <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
-              Submitting...
+              Calculating route…
             </>
           ) : (
             <>
               <Calendar className="w-4 h-4" />
-              Request Transportation
+              Review Booking
             </>
           )}
         </Button>
