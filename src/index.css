@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* AMD Express Transportation Design System */
+    /* Royal Blue & White with professional medical feel */
+
+    --background: 0 0% 100%;
+    --foreground: 220 25% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 14%;
+
+    /* Primary - Royal Blue from logo */
+    --primary: 219 83% 49%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Soft gray */
+    --secondary: 216 20% 96%;
+    --secondary-foreground: 220 25% 14%;
+
+    --muted: 216 20% 96%;
+    --muted-foreground: 220 12% 45%;
+
+    /* Accent - Light blue tint */
+    --accent: 214 100% 95%;
+    --accent-foreground: 219 83% 35%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 216 22% 90%;
+    --input: 216 22% 90%;
+    --ring: 219 83% 49%;
+
+    --radius: 0.75rem;
+
+    /* Custom brand blues (tokens still named "orange-*" so all existing
+       classes map straight to blue with no markup changes) */
+    --orange-50: 214 100% 97%;
+    --orange-100: 214 100% 93%;
+    --orange-500: 219 83% 49%;
+    --orange-600: 219 84% 42%;
+    --orange-700: 220 85% 34%;
+
+    --charcoal: 220 28% 12%;
+    --charcoal-light: 220 20% 26%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(219 83% 49%), hsl(220 88% 38%));
+    --gradient-hero: linear-gradient(180deg, hsl(214 100% 97%) 0%, hsl(0 0% 100%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 25% 14% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(220 25% 14% / 0.1), 0 2px 4px -2px hsl(220 25% 14% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(220 25% 14% / 0.1), 0 4px 6px -4px hsl(220 25% 14% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(220 25% 14% / 0.1), 0 8px 10px -6px hsl(220 25% 14% / 0.1);
+    --shadow-orange: 0 10px 30px -10px hsl(219 83% 49% / 0.45);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 219 83% 49%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 219 83% 49%;
+  }
+
+  .dark {
+    --background: 220 28% 9%;
+    --foreground: 0 0% 98%;
+
+    --card: 220 26% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 220 26% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 219 90% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 18% 18%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 220 18% 18%;
+    --muted-foreground: 220 12% 62%;
+
+    --accent: 219 70% 22%;
+    --accent-foreground: 214 100% 80%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 18% 20%;
+    --input: 220 18% 20%;
+    --ring: 219 90% 60%;
+
+    --sidebar-background: 220 28% 9%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 219 90% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 18% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 18% 20%;
+    --sidebar-ring: 219 90% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
+  }
+
+  .bg-gradient-primary {
+    background-image: var(--gradient-primary);
+  }
+
+  .bg-gradient-hero {
+    background-image: var(--gradient-hero);
+  }
+
+  .shadow-orange {
+    box-shadow: var(--shadow-orange);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-lg);
+  }
+}
