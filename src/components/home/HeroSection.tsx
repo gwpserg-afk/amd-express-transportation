@@ -4,6 +4,7 @@ import { Phone, Shield, Award, Clock, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import heroVideo from "@/assets/hero-video.mp4";
+import heroPoster from "@/assets/hero-poster.jpg";
 
 const HeroSection = () => {
   const [isReady, setIsReady] = useState(false);
@@ -57,7 +58,8 @@ const HeroSection = () => {
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
+          poster={heroPoster}
           onCanPlayThrough={() => setIsReady(true)}
           className="w-full h-full object-cover opacity-10"
         />
@@ -139,7 +141,8 @@ const HeroSection = () => {
                 loop
                 muted
                 playsInline
-                preload="auto"
+                preload="metadata"
+          poster={heroPoster}
                 className="w-full h-auto object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/10 to-transparent pointer-events-none" />
