@@ -16,6 +16,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { geocode, getRoute, type RouteResult } from "@/lib/mapbox";
 import RouteReview from "./RouteReview";
+import AddressAutocomplete from "./AddressAutocomplete";
+import DateField from "./DateField";
+import TimeField from "./TimeField";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mdekgbna";
 
@@ -265,10 +268,7 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
 
   if (step === "review" && route) {
     const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
-    const assistance =
-      [cap(formData.mobility), formData.equipment && formData.equipment !== "none" ? cap(formData.equipment) : ""]
-        .filter(Boolean)
-        .join(" · ") || "None";
+    const assistance = cap(formData.mobility) || "None";
     return (
       <div className={className}>
         <RouteReview
@@ -416,26 +416,24 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
         <div className="grid sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="pickupLocation" className="text-xs">Pickup Location *</Label>
-            <Input
+            <AddressAutocomplete
               id="pickupLocation"
               name="pickupLocation"
-              placeholder="Address or facility"
+              placeholder="Start typing an address…"
               value={formData.pickupLocation}
-              onChange={handleChange}
               required
-              className="h-10"
+              onChange={(v) => handleSelectChange("pickupLocation", v)}
             />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="dropoffLocation" className="text-xs">Drop-off Location *</Label>
-            <Input
+            <AddressAutocomplete
               id="dropoffLocation"
               name="dropoffLocation"
-              placeholder="Address or facility"
+              placeholder="Start typing an address…"
               value={formData.dropoffLocation}
-              onChange={handleChange}
               required
-              className="h-10"
+              onChange={(v) => handleSelectChange("dropoffLocation", v)}
             />
           </div>
         </div>
@@ -443,37 +441,23 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
         <div className="grid sm:grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="pickupDate" className="text-xs">Pickup Date *</Label>
-            <Input
-              id="pickupDate"
-              name="pickupDate"
-              type="date"
+            <DateField
               value={formData.pickupDate}
-              onChange={handleChange}
-              required
-              className="h-10"
+              onChange={(v) => handleSelectChange("pickupDate", v)}
             />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="pickupTime" className="text-xs">Pickup Time *</Label>
-            <Input
-              id="pickupTime"
-              name="pickupTime"
-              type="time"
+            <TimeField
               value={formData.pickupTime}
-              onChange={handleChange}
-              required
-              className="h-10"
+              onChange={(v) => handleSelectChange("pickupTime", v)}
             />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="appointmentTime" className="text-xs">Appointment Time</Label>
-            <Input
-              id="appointmentTime"
-              name="appointmentTime"
-              type="time"
+            <TimeField
               value={formData.appointmentTime}
-              onChange={handleChange}
-              className="h-10"
+              onChange={(v) => handleSelectChange("appointmentTime", v)}
             />
           </div>
         </div>
@@ -497,20 +481,16 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
           {formData.roundTrip === "yes" && (
             <div className="space-y-1.5">
               <Label htmlFor="returnTime" className="text-xs">Return Pickup Time</Label>
-              <Input
-                id="returnTime"
-                name="returnTime"
-                type="time"
+              <TimeField
                 value={formData.returnTime}
-                onChange={handleChange}
-                className="h-10"
+                onChange={(v) => handleSelectChange("returnTime", v)}
               />
             </div>
           )}
         </div>
 
         {/* Mobility & Options */}
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label className="text-xs">Mobility *</Label>
             <Select
@@ -540,24 +520,6 @@ const BookingFormWidget = ({ variant = "full", className }: BookingFormWidgetPro
                 <SelectItem value="2">2</SelectItem>
                 <SelectItem value="3">3</SelectItem>
                 <SelectItem value="4">4+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Equipment</Label>
-            <Select
-              value={formData.equipment}
-              onValueChange={(value) => handleSelectChange("equipment", value)}
-            >
-              <SelectTrigger className="h-10">
-                <SelectValue placeholder="None" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="wheelchair">Wheelchair</SelectItem>
-                <SelectItem value="walker">Walker</SelectItem>
-                <SelectItem value="oxygen">Oxygen</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
